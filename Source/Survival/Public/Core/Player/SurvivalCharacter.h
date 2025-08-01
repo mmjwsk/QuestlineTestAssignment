@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "SurvivalCharacter.generated.h"
@@ -9,35 +10,41 @@ class UInputComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
 class UInputAction;
-struct FInputActionValue;
+// REFACTOR NOTE: Removed the struct Fwd-declaration and replaced it w/ include - it is not a good practice to fwd-declare USTRUCTs
+// as it can sometimes lead to difficult-to-trace bugs so it's best avoided altogether.
+//struct FInputActionValue;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
-UCLASS(abstract)
+UCLASS(Abstract)
 class ASurvivalCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	// REFACTOR NOTE: Replaced instances of T* w/ TObjectPtr<T> - in UE5 it's best practice to use TObjectPtr for UPROPERTY-exposed
+	// pointers due to additional functionalities and benefits for the reflection system
+	
 	/** Pawn mesh: first person view (arms; seen only by self) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* FirstPersonMesh;
+	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FirstPersonCameraComponent;
+	TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
-	UInputAction* JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
-	UInputAction* MoveAction;
+	TObjectPtr<UInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
-	class UInputAction* LookAction;
+	TObjectPtr<UInputAction> MoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
-	class UInputAction* MouseLookAction;
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
+	TObjectPtr<UInputAction> MouseLookAction;
 	
 public:
 	ASurvivalCharacter();
@@ -63,7 +70,6 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
 public:
-
 	USkeletalMeshComponent* GetFirstPersonMesh() const { return FirstPersonMesh; }
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 };

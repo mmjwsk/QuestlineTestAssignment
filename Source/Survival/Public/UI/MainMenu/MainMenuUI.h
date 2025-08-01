@@ -15,20 +15,32 @@ class SURVIVAL_API UMainMenuUI : public UUserWidget
 {
 	GENERATED_BODY()
 
-	UPROPERTY(meta=(BindWidget)) UButton* NewGame;
-	UPROPERTY(meta=(BindWidget)) UButton* Join;
-	UPROPERTY(meta=(BindWidget)) UButton* Exit;
+protected:
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> NewGame;
 
-	UPROPERTY(meta=(BindWidget)) UTextBlock* LogOutput;
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Join;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UButton> Exit;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> LogOutput;
 
 	TSharedPtr<FOnlineSessionSearch> SessionSearch;
-	
+
 	virtual void NativeConstruct() override;
 
-	UFUNCTION() void OnNewGame();
-	UFUNCTION() void OnJoin();
-	UFUNCTION() void OnExit();
+	UFUNCTION()
+	void OnNewGame();
 	
+	UFUNCTION()
+	void OnJoin();
+
+	UFUNCTION()
+	void OnExit();
+
 	void OnCreateSessionComplete(FName Name, bool Success);
 	void OnFindSessionsComplete(bool Success);
 	void OnJoinSessionComplete(FName Name, EOnJoinSessionCompleteResult::Type Result);

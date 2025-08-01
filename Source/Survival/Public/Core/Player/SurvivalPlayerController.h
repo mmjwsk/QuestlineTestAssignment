@@ -6,7 +6,7 @@
 
 class UInputMappingContext;
 
-UCLASS(abstract)
+UCLASS(Abstract)
 class SURVIVAL_API ASurvivalPlayerController : public APlayerController
 {
 	GENERATED_BODY()

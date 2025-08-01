@@ -12,7 +12,8 @@ class SURVIVAL_API AMainMenuHUD : public AHUD
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly) TSubclassOf<UMainMenuUI> MenuUI;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UMainMenuUI> MenuUI;
 
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
