@@ -10,12 +10,13 @@ AProjectile::AProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	CollisionComponent->InitSphereRadius(5.0f);
 	CollisionComponent->SetCollisionProfileName("Projectile");
 	CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnProjectileImpact);
-	SetRootComponent(CollisionComponent);
+	CollisionComponent->SetupAttachment(RootComponent);
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	MeshComponent->SetupAttachment(RootComponent);
@@ -46,6 +47,13 @@ void AProjectile::SetProperties(float ProjectileDamage, float MuzzleExitSpeed, f
 	ProjectileMovement->InitialSpeed = MuzzleExitSpeed;
 	Damage = ProjectileDamage;
 	InitialLifeSpan = LifeSpan;
+
+	if (GetInstigator())
+	{
+		CollisionComponent->IgnoreActorWhenMoving(GetInstigator(), true);
+	}
+
+	SetReplicateMovement(true);
 }
 
 void AProjectile::ApplyDamage(AActor* OtherActor)

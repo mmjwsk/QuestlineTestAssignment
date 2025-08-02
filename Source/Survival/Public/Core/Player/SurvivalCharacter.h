@@ -6,6 +6,7 @@
 #include "Logging/LogMacros.h"
 #include "SurvivalCharacter.generated.h"
 
+class UFakeMuzzle;
 class UWeaponComponent;
 class UInputComponent;
 class USkeletalMeshComponent;
@@ -36,8 +37,11 @@ class ASurvivalCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, Category="Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UWeaponComponent> WeaponComponent;
 
-protected:
+	// Exists because animations are broken. Chosen to have a strong-typed empty Scene Component just for convenient transform manipulation in the BP.
+	UPROPERTY(VisibleAnywhere, Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UFakeMuzzle> FakeMuzzle;
 
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
 	TObjectPtr<UInputAction> JumpAction;
 
@@ -49,12 +53,17 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
 	TObjectPtr<UInputAction> MouseLookAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
+	TObjectPtr<UInputAction> WeaponFireAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category ="Input")
+	TObjectPtr<UInputAction> WeaponScrollAction;
 	
 public:
 	ASurvivalCharacter();
 
 protected:
-
 	void MoveInput(const FInputActionValue& Value);
 	void LookInput(const FInputActionValue& Value);
 
@@ -69,6 +78,15 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoJumpEnd();
+
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoFireStart();
+
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoFireEnd();
+
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoWeaponScroll();
 
 protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;

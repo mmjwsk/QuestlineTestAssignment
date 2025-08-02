@@ -6,6 +6,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Weapons/FakeMuzzle.h"
 #include "Weapons/WeaponComponent.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -38,6 +39,8 @@ ASurvivalCharacter::ASurvivalCharacter()
 	GetCharacterMovement()->AirControl = 0.5f;
 
 	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+	FakeMuzzle = CreateDefaultSubobject<UFakeMuzzle>(TEXT("FakeWeaponMuzzle"));
+	FakeMuzzle->SetupAttachment(FirstPersonCameraComponent);
 }
 
 void ASurvivalCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -49,6 +52,10 @@ void ASurvivalCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASurvivalCharacter::MoveInput);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASurvivalCharacter::LookInput);
 		EnhancedInputComponent->BindAction(MouseLookAction, ETriggerEvent::Triggered, this, &ASurvivalCharacter::LookInput);
+
+		EnhancedInputComponent->BindAction(WeaponFireAction, ETriggerEvent::Started, this, &ThisClass::DoFireStart);
+		EnhancedInputComponent->BindAction(WeaponFireAction, ETriggerEvent::Completed, this, &ThisClass::DoFireEnd);
+		EnhancedInputComponent->BindAction(WeaponScrollAction, ETriggerEvent::Triggered, this, &ThisClass::DoWeaponScroll);
 	}
 	else
 	{
@@ -95,4 +102,19 @@ void ASurvivalCharacter::DoJumpStart()
 void ASurvivalCharacter::DoJumpEnd()
 {
 	StopJumping();
+}
+
+void ASurvivalCharacter::DoFireStart()
+{
+	WeaponComponent->StartFire();
+}
+
+void ASurvivalCharacter::DoFireEnd()
+{
+	WeaponComponent->StopFire();
+}
+
+void ASurvivalCharacter::DoWeaponScroll()
+{
+	WeaponComponent->ScrollWeapon();
 }

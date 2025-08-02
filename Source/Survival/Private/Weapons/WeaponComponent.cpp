@@ -3,28 +3,28 @@
 
 #include "Weapons/WeaponComponent.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Core/Player/SurvivalCharacter.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
+#include "Weapons/FakeMuzzle.h"
 #include "Weapons/Projectile.h"
 #include "Weapons/WeaponDatabase.h"
 #include "Weapons/WeaponProp.h"
+
+DEFINE_LOG_CATEGORY(LogWeaponComponent)
 
 UWeaponComponent::UWeaponComponent()
 {
 	SetIsReplicatedByDefault(true);
 }
 
-void UWeaponComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
 void UWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
+	
 	DOREPLIFETIME(UWeaponComponent, WeaponInventory);
+	DOREPLIFETIME(UWeaponComponent, CurrentWeaponIndex);
 	DOREPLIFETIME(UWeaponComponent, EquippedWeaponProp);
 	DOREPLIFETIME(UWeaponComponent, WeaponProps);
 	DOREPLIFETIME(UWeaponComponent, bIsFiring);
@@ -32,15 +32,19 @@ void UWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 
 void UWeaponComponent::StartFire()
 {
-	if (!HasWeaponEquipped() || GetAmmo() <= 0) return;
+	//if (!HasWeaponEquipped() || GetAmmo() <= 0) return;
+	if (!HasWeaponEquipped()) return;
 
 	if (!GetOwner()->HasAuthority())
 	{
+		UE_LOG(LogWeaponComponent, Warning, TEXT("[CLIENT] Calling S_Fire()"));
 		S_Fire();
 	}
-
-	bIsFiring = true;
-	HandleFiring();
+	else
+	{
+		bIsFiring = true;
+		HandleFiring();
+	}
 }
 
 void UWeaponComponent::StopFire()
@@ -107,6 +111,8 @@ void UWeaponComponent::AttachPropToPlayer(AWeaponProp* Prop)
 
 void UWeaponComponent::AddNewWeapon(FGameplayTag NewWeaponTag)
 {
+	UE_LOG(LogWeaponComponent, Warning, TEXT("Weapon picked up on %s"), *GetOwner()->GetName());
+	
 	if (auto* MatchingEntry = WeaponInventory.FindByPredicate(
 		[NewWeaponTag](FWeaponInventoryData& Entry)
 		{
@@ -137,27 +143,66 @@ void UWeaponComponent::AddNewWeapon(FGameplayTag NewWeaponTag)
 	}
 }
 
+void UWeaponComponent::ScrollWeapon()
+{
+	if (!GetOwner()->HasAuthority())
+	{
+		S_ScrollWeapon();
+		return;
+	}
+	
+	if (WeaponInventory.Num() <= 1) return;
+
+	EquippedWeaponProp->SetActorHiddenInGame(true);
+	CurrentWeaponIndex += 1;
+	if (CurrentWeaponIndex >= WeaponInventory.Num())
+	{
+		CurrentWeaponIndex = 0;
+	}
+
+	ensure(Database->TryGetWeaponData(WeaponInventory[CurrentWeaponIndex].WeaponTag,CurrentWeaponData));
+	EquippedWeaponProp = WeaponProps[CurrentWeaponIndex];
+	OnRep_EquippedWeaponProp();
+}
+
+void UWeaponComponent::S_ScrollWeapon_Implementation()
+{
+	ScrollWeapon();
+}
+
 void UWeaponComponent::Fire()
 {
+	UE_LOG(LogWeaponComponent, Warning, TEXT("Fire() called on %s"), *GetOwner()->GetName());
+	
 	if (!GetOwner()->HasAuthority()) return;
 
 	GetAmmo()--;
 	MC_FireEffects();
 
-	FVector MuzzleLocation = FVector::Zero(); //WeaponMesh->GetSocketLocation("Muzzle");
-	FRotator MuzzleRotation = FRotator::ZeroRotator; //WeaponMesh->GetSocketRotation("Muzzle");
+	// With animations working correctly I'd take the muzzle socket transform from the currently held weapon here
+	FTransform MuzzleLocation = GetOwner()->FindComponentByClass<UFakeMuzzle>()->GetComponentTransform();
 
 	if (auto* ProjectileClass = CurrentWeaponData.ProjectileClass.LoadSynchronous())
 	{
+		ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 		FActorSpawnParameters Params;
 		Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		GetWorld()->SpawnActor<AProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, Params);
-		// Spawn deferred and insert projectile data here
+		if (auto* ProjectileActor = GetWorld()->SpawnActorDeferred<AProjectile>(ProjectileClass, MuzzleLocation, OwnerCharacter,
+			OwnerCharacter, ESpawnActorCollisionHandlingMethod::AlwaysSpawn, ESpawnActorScaleMethod::MultiplyWithRoot))
+		{
+			// So we don't shoot ourselves
+			OwnerCharacter->GetCapsuleComponent()->IgnoreActorWhenMoving(ProjectileActor, true);
+			ProjectileActor->SetProperties(CurrentWeaponData.Damage, CurrentWeaponData.ProjectileMuzzleSpeed, CurrentWeaponData.ProjectileLifeSpan);
+			ProjectileActor->FinishSpawning(MuzzleLocation);
+		}
 	}
 }
 
 void UWeaponComponent::S_Fire_Implementation()
 {
+	UE_LOG(LogWeaponComponent, Warning, TEXT("S_Fire_Implementation() called on server"));
+
+	bIsFiring = true;
 	HandleFiring();
 }
 

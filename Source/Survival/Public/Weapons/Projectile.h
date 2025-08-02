@@ -20,15 +20,16 @@ class SURVIVAL_API AProjectile : public AActor
 public:
 	AProjectile();
 
+	// Call when spawning a Projectile
+	void SetProperties(float ProjectileDamage, float MuzzleExitSpeed, float LifeSpan);
+	
 protected:
 	UFUNCTION()
 	void OnProjectileImpact(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MC_ImpactEffects();
-
-	// Call when spawning a Projectile
-	void SetProperties(float ProjectileDamage, float MuzzleExitSpeed, float LifeSpan);
+	
 	void ApplyDamage(AActor* OtherActor);
 	
 	UPROPERTY(VisibleDefaultsOnly)
