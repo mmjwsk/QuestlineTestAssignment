@@ -13,11 +13,17 @@ UCLASS()
 class SURVIVAL_API AWeaponProp : public AActor
 {
 	GENERATED_BODY()
-	
+
+public:
+	AWeaponProp();
+
+	USkeletalMeshComponent* GetFPPMesh() const { return FirstPersonMesh; }
+	USkeletalMeshComponent* GetTPPMesh() const { return ThirdPersonMesh; }
+
 protected:
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
-	
+
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USkeletalMeshComponent> ThirdPersonMesh;
 };

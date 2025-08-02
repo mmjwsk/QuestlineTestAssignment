@@ -6,6 +6,7 @@
 #include "Logging/LogMacros.h"
 #include "SurvivalCharacter.generated.h"
 
+class UWeaponComponent;
 class UInputComponent;
 class USkeletalMeshComponent;
 class UCameraComponent;
@@ -31,6 +32,9 @@ class ASurvivalCharacter : public ACharacter
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UWeaponComponent> WeaponComponent;
 
 protected:
 

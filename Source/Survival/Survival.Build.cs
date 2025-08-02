@@ -17,7 +17,8 @@ public class Survival : ModuleRules
 			"GameplayStateTreeModule",
 			"UMG",
 			"OnlineSubsystem", 
-			"OnlineSubsystemUtils"
+			"OnlineSubsystemUtils",
+			"GameplayTags"
 		]);
 	}
 }
