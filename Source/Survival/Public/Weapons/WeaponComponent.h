@@ -5,28 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
 #include "WeaponData.h"
+#include "WeaponInventoryData.h"
 #include "Components/ActorComponent.h"
 #include "WeaponComponent.generated.h"
 
 class UWeaponDatabase;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogWeaponComponent, Log, All);
-
-USTRUCT()
-struct FWeaponInventoryData
-{
-	GENERATED_BODY()
-
-	UPROPERTY(VisibleAnywhere)
-	FGameplayTag WeaponTag = FGameplayTag::EmptyTag;
-
-	// Exists because players can collect ammo for weapons they don't yet have
-	UPROPERTY(VisibleAnywhere)
-	bool bWeaponCollected = false;
-
-	UPROPERTY(VisibleAnywhere)
-	uint16 AmmoCount = 0;
-};
+DECLARE_MULTICAST_DELEGATE_OneParam(FAmmoChangedDelegate, uint16 /*CurrentAmmoCount*/);
 
 /**
  * Main component responsible for Character's weapon behavior
@@ -39,9 +25,12 @@ class SURVIVAL_API UWeaponComponent : public UActorComponent
 public:
 	UWeaponComponent();
 
+	FAmmoChangedDelegate OnAmmoChanged;
+
 	void StartFire();
 	void StopFire();
 	void AddNewWeapon(FGameplayTag NewWeaponTag);
+	void AddAmmo(FGameplayTag WeaponTag, uint16 AmountToAdd);
 	void ScrollWeapon();
 
 	UFUNCTION(Server, Reliable)
@@ -54,18 +43,20 @@ public:
 	void MC_FireEffects();
 
 protected:
+	virtual void BeginPlay() override;
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void Fire();
 	void HandleFiring();
 	void AddWeaponProp(FGameplayTag WeaponTag);
 	void AttachPropToPlayer(AWeaponProp* Prop);
+	void ConsumeCurrentWeaponAmmo(uint16 AmountToConsume);
 
-	uint16& GetAmmo() { return WeaponInventory[CurrentWeaponIndex].AmmoCount; }
+	uint16 GetCurrentWeaponAmmo() const;
 	bool HasWeaponEquipped() const { return CurrentWeaponIndex != 255; }
 
 	UFUNCTION()
-	void OnRep_WeaponInventory();
+	void OnRep_WeaponInventory() const;
 
 	UFUNCTION()
 	void OnRep_EquippedWeaponProp();
@@ -92,8 +83,11 @@ protected:
 	AWeaponProp* EquippedWeaponProp;
 
 	// Replicated so that the Server verifies the ammo count to prevent client-side infinite ammo cheats or spawning in weapons
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_WeaponInventory)
-	TArray<FWeaponInventoryData> WeaponInventory;
+	//UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_WeaponInventory)
+	//TArray<FWeaponInventoryData> WeaponInventory;
+
+	UPROPERTY(ReplicatedUsing = OnRep_WeaponInventory)
+	FReplicatedWeaponInventory WeaponInventory;
 
 	FWeaponData CurrentWeaponData;
 	FTimerHandle FireRateTimerHandle;

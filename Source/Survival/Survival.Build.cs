@@ -18,7 +18,8 @@ public class Survival : ModuleRules
 			"UMG",
 			"OnlineSubsystem", 
 			"OnlineSubsystemUtils",
-			"GameplayTags"
+			"GameplayTags",
+			"NetCore"
 		]);
 	}
 }

@@ -3,11 +3,10 @@
 
 #include "Ammo/AmmoGrantingComponent.h"
 
+#include "Weapons/WeaponComponent.h"
 
-void UAmmoGrantingComponent::GrantAmmo()
+
+void UAmmoGrantingComponent::GrantAmmo(FGameplayTag WeaponToGrantAmmoFor, UWeaponComponent* WeaponComponentToGrantTo) const
 {
-	if (GetOwner()->HasAuthority())
-	{
-		
-	}
+	WeaponComponentToGrantTo->AddAmmo(WeaponToGrantAmmoFor, AmmoAmount);
 }
