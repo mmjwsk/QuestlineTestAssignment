@@ -144,6 +144,9 @@ void UWeaponComponent::AddAmmo(FGameplayTag WeaponTag, uint16 AmountToAdd)
 		{
 			Item.AmmoCount += AmountToAdd;
 			WeaponInventory.MarkItemDirty(Item);
+
+			// Notify UI
+			OnRep_WeaponInventory();
 			return;
 		}
 	}
@@ -220,9 +223,18 @@ void UWeaponComponent::ScrollWeapon()
 		S_ScrollWeapon();
 		return;
 	}
-	
-	if (WeaponInventory.Items.Num() <= 1) return;
 
+	// Needed to handle the scenario where player has collected multiple ammo types without corresponding weapons
+	uint8 CollectedWeapons = 0;
+	for (const auto& Item : WeaponInventory.Items)
+	{
+		if (Item.bWeaponCollected)
+		{
+			CollectedWeapons++;
+		}
+	}
+	if (CollectedWeapons <= 1) return;
+	
 	EquippedWeaponProp->SetActorHiddenInGame(true);
 	CurrentWeaponIndex += 1;
 	if (CurrentWeaponIndex >= WeaponInventory.Items.Num())

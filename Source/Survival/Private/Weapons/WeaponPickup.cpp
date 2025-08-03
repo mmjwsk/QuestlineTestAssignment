@@ -13,6 +13,9 @@ AWeaponPickup::AWeaponPickup()
 	AmmoGrantingComponent = CreateDefaultSubobject<UAmmoGrantingComponent>(TEXT("AmmoGrantingComponent"));
 }
 
+// Technically with the current state of implementation WeaponPickup could inherit AmmoPickup and reuse much of the (rather sparse) code there.
+// However I don't think that this is a good design in the long run, as those pickups are too different conceptually
+// Hence I kept them as parallel children instead of inheriting one another, despite noticing the slight reuse of code.
 bool AWeaponPickup::TryHandlePickup(ASurvivalCharacter* PickupCharacter)
 {
 	if (!HasAuthority()) return false;
