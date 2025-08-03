@@ -33,6 +33,8 @@ public:
 	void AddAmmo(FGameplayTag WeaponTag, uint16 AmountToAdd);
 	void ScrollWeapon();
 
+	uint16 GetCurrentWeaponAmmo() const;
+
 	UFUNCTION(Server, Reliable)
 	void S_Fire();
 
@@ -51,8 +53,7 @@ protected:
 	void AddWeaponProp(FGameplayTag WeaponTag);
 	void AttachPropToPlayer(AWeaponProp* Prop);
 	void ConsumeCurrentWeaponAmmo(uint16 AmountToConsume);
-
-	uint16 GetCurrentWeaponAmmo() const;
+	
 	bool HasWeaponEquipped() const { return CurrentWeaponIndex != 255; }
 
 	UFUNCTION()

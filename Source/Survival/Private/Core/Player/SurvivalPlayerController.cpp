@@ -7,6 +7,14 @@ ASurvivalPlayerController::ASurvivalPlayerController()
 {
 }
 
+void ASurvivalPlayerController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+	
+	OnPossessed.Broadcast(InPawn);
+	UE_LOG(LogTemp, Warning, TEXT("%s PAWN SET"), *GetName());
+}
+
 void ASurvivalPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();

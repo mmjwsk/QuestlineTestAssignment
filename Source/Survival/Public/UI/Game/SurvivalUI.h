@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SurvivalUI.generated.h"
 
+class ASurvivalPlayerController;
 class UTextBlock;
 
 /**
@@ -21,10 +22,16 @@ protected:
 	
 	void OnAmmoChanged(uint16 NewAmmoCount);
 	void OnHealthChanged(float NewHealth);
+	void OnPlayerPawnPossessed(APawn* Pawn);
+	void OnPlayerDied();
+	void SubscribeLocalPlayerEvents(const APawn* LocalPawn);
 	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> AmmoDisplay;
 
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> HealthDisplay;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> WastedDisplay;
 };

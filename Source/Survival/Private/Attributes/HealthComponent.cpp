@@ -3,6 +3,8 @@
 
 #include "Attributes/HealthComponent.h"
 
+#include "Core/Game/GameModeGame.h"
+#include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
 DEFINE_LOG_CATEGORY(LogAttributes)
@@ -17,6 +19,7 @@ void UHealthComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Health = MaxHealth;
+	OnRep_Health();
 
 	if (AActor* Owner = GetOwner())
 	{
@@ -49,27 +52,42 @@ void UHealthComponent::ApplyDamage(AActor*, float Damage, const UDamageType*, AC
 
 void UHealthComponent::HandleDeath()
 {
+	if (!IsValid(GetOwner())) return;
+	
 	OnDeath.Broadcast();
+	
 	UE_LOG(LogAttributes, Warning, TEXT("%s KILLED"), *GetOwner()->GetName());
 
-	// Example: disable movement, ragdoll, etc.
-	AActor* Owner = GetOwner();
-	if (Owner)
+	// Disable actor behavior
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (Character)
 	{
-		Owner->SetLifeSpan(5.0f); // optional, or call respawn from GameMode
+		Character->DisableInput(nullptr);
+		Character->SetLifeSpan(5.f);
 	}
-}
 
-void UHealthComponent::Respawn()
-{
-	if (!GetOwner()->HasAuthority()) return;
-
-	Health = MaxHealth;
-	bIsDead = false;
-	OnRep_Health();
+	// Notify GameMode
+	if (GetOwner()->HasAuthority())
+	{
+		if (AController* CharacterController = Character->GetController())
+		{
+			if (auto* GameMode = GetWorld()->GetAuthGameMode<AGameModeGame>())
+			{
+				GameMode->HandlePlayerDeath(CharacterController);
+			}
+		}
+	}
 }
 
 void UHealthComponent::OnRep_Health() const
 {
 	OnHealthChanged.Broadcast(GetHealth());
+}
+
+void UHealthComponent::OnRep_IsDead()
+{
+	if (bIsDead)
+	{
+		HandleDeath();
+	}
 }

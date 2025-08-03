@@ -22,7 +22,6 @@ public:
 	FOnPlayerDeath OnDeath;
 	FOnHealthChanged OnHealthChanged;
 	
-	void Respawn();
 	float GetHealth() const { return Health; }
 
 protected:
@@ -36,14 +35,17 @@ protected:
 	void OnRep_Health() const;
 
 	UFUNCTION()
+	void OnRep_IsDead();
+
+	UFUNCTION()
 	void HandleDeath();
 
 	UPROPERTY(ReplicatedUsing = OnRep_Health)
 	float Health;
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsDead)
+	bool bIsDead = false;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth = 100.0f;
-
-	UPROPERTY(Replicated)
-	bool bIsDead = false;
 };
