@@ -18,8 +18,13 @@ class SURVIVAL_API USurvivalUI : public UUserWidget
 
 protected:
 	virtual void NativeOnInitialized() override;
+	
 	void OnAmmoChanged(uint16 NewAmmoCount);
+	void OnHealthChanged(float NewHealth);
 	
 	UPROPERTY(meta=(BindWidget))
 	TObjectPtr<UTextBlock> AmmoDisplay;
+
+	UPROPERTY(meta=(BindWidget))
+	TObjectPtr<UTextBlock> HealthDisplay;
 };

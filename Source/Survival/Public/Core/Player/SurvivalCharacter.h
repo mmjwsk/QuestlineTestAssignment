@@ -6,6 +6,7 @@
 #include "Logging/LogMacros.h"
 #include "SurvivalCharacter.generated.h"
 
+class UHealthComponent;
 class UFakeMuzzle;
 class UWeaponComponent;
 class UInputComponent;
@@ -36,6 +37,9 @@ class ASurvivalCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, Category="Components", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UWeaponComponent> WeaponComponent;
+
+	UPROPERTY(VisibleAnywhere, Category="Components", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UHealthComponent> HealthComponent;
 
 	// Exists because animations are broken. Chosen to have a strong-typed empty Scene Component just for convenient transform manipulation in the BP.
 	UPROPERTY(VisibleAnywhere, Category="Components", meta = (AllowPrivateAccess = "true"))

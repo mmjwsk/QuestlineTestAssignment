@@ -15,7 +15,7 @@ AProjectile::AProjectile()
 	CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	CollisionComponent->InitSphereRadius(5.0f);
 	CollisionComponent->SetCollisionProfileName("Projectile");
-	CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnProjectileImpact);
+	CollisionComponent->OnComponentBeginOverlap.AddDynamic(this, &AProjectile::OnProjectileOverlap);
 	CollisionComponent->SetupAttachment(RootComponent);
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
@@ -27,7 +27,7 @@ AProjectile::AProjectile()
 	ProjectileMovement->ProjectileGravityScale = 0.0f;
 }
 
-void AProjectile::OnProjectileImpact(UPrimitiveComponent*, AActor* OtherActor, UPrimitiveComponent*, FVector, const FHitResult&)
+void AProjectile::OnProjectileOverlap(UPrimitiveComponent*, AActor* OtherActor, UPrimitiveComponent*, int32, bool, const FHitResult&)
 {
 	if (!HasAuthority()) return;
 

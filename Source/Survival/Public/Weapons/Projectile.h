@@ -25,7 +25,7 @@ public:
 	
 protected:
 	UFUNCTION()
-	void OnProjectileImpact(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	void OnProjectileOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool BFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MC_ImpactEffects();

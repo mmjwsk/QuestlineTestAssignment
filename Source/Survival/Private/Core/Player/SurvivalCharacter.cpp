@@ -5,6 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
+#include "Attributes/HealthComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapons/FakeMuzzle.h"
 #include "Weapons/WeaponComponent.h"
@@ -39,6 +40,7 @@ ASurvivalCharacter::ASurvivalCharacter()
 	GetCharacterMovement()->AirControl = 0.5f;
 
 	WeaponComponent = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 	FakeMuzzle = CreateDefaultSubobject<UFakeMuzzle>(TEXT("FakeWeaponMuzzle"));
 	FakeMuzzle->SetupAttachment(FirstPersonCameraComponent);
 }
