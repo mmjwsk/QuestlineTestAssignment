@@ -69,7 +69,10 @@ void UHealthComponent::HandleDeath()
 
 		if (auto* WeaponComponent = Character->FindComponentByClass<UWeaponComponent>())
 		{
-			WeaponComponent->GetCurrentlyHeldWeaponProp()->SetLifeSpan(5.f);
+			if (auto* WeaponProp = WeaponComponent->GetCurrentlyHeldWeaponProp())
+			{
+				WeaponProp->SetLifeSpan(5.f);
+			}
 		}
 	}
 
