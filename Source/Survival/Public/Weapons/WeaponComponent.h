@@ -12,6 +12,7 @@
 class UWeaponDatabase;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogWeaponComponent, Log, All);
+
 DECLARE_MULTICAST_DELEGATE_OneParam(FAmmoChangedDelegate, uint16 /*CurrentAmmoCount*/);
 
 /**
@@ -34,6 +35,7 @@ public:
 	void ScrollWeapon();
 
 	uint16 GetCurrentWeaponAmmo() const;
+	AWeaponProp* GetCurrentlyHeldWeaponProp() const { return EquippedWeaponProp; }
 
 	UFUNCTION(Server, Reliable)
 	void S_Fire();
@@ -53,7 +55,7 @@ protected:
 	void AddWeaponProp(FGameplayTag WeaponTag);
 	void AttachPropToPlayer(AWeaponProp* Prop);
 	void ConsumeCurrentWeaponAmmo(uint16 AmountToConsume);
-	
+
 	bool HasWeaponEquipped() const { return CurrentWeaponIndex != 255; }
 
 	UFUNCTION()
@@ -61,7 +63,7 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeaponProp();
-	
+
 	UPROPERTY(EditAnywhere, Category = "Weapons")
 	FName FirstPersonWeaponSocket = FName("HandGrip_R");
 
@@ -73,10 +75,10 @@ protected:
 
 	UPROPERTY(Replicated)
 	bool bIsFiring = false;
-	
+
 	UPROPERTY(Replicated)
 	uint8 CurrentWeaponIndex = 255;
-	
+
 	UPROPERTY(Replicated)
 	TArray<AWeaponProp*> WeaponProps;
 

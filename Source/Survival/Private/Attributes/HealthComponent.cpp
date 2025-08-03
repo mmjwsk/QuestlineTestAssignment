@@ -6,6 +6,8 @@
 #include "Core/Game/GameModeGame.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
+#include "Weapons/WeaponComponent.h"
+#include "Weapons/WeaponProp.h"
 
 DEFINE_LOG_CATEGORY(LogAttributes)
 
@@ -64,6 +66,11 @@ void UHealthComponent::HandleDeath()
 	{
 		Character->DisableInput(nullptr);
 		Character->SetLifeSpan(5.f);
+
+		if (auto* WeaponComponent = Character->FindComponentByClass<UWeaponComponent>())
+		{
+			WeaponComponent->GetCurrentlyHeldWeaponProp()->SetLifeSpan(5.f);
+		}
 	}
 
 	// Notify GameMode
